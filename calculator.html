@@ -186,6 +186,21 @@
     </div>
 
     <script>
+        const OPERATIONS = {
+            add:      (a, b) => a + b,
+            subtract: (a, b) => a - b,
+            multiply: (a, b) => a * b,
+            divide:   (a, b) => {
+                if (b === 0) throw new Error('Cannot divide by zero');
+                return a / b;
+            },
+            power:    (a, b) => Math.pow(a, b),
+            modulo:   (a, b) => {
+                if (b === 0) throw new Error('Cannot modulo by zero');
+                return a % b;
+            },
+        };
+
         function getInputs() {
             const num1 = parseFloat(document.getElementById('num1').value);
             const num2 = parseFloat(document.getElementById('num2').value);
@@ -210,41 +225,17 @@
                 return;
             }
 
-            let result;
-
-            switch(operation) {
-                case 'add':
-                    result = num1 + num2;
-                    break;
-                case 'subtract':
-                    result = num1 - num2;
-                    break;
-                case 'multiply':
-                    result = num1 * num2;
-                    break;
-                case 'divide':
-                    if (num2 === 0) {
-                        displayError('Cannot divide by zero');
-                        return;
-                    }
-                    result = num1 / num2;
-                    break;
-                case 'power':
-                    result = Math.pow(num1, num2);
-                    break;
-                case 'modulo':
-                    if (num2 === 0) {
-                        displayError('Cannot modulo by zero');
-                        return;
-                    }
-                    result = num1 % num2;
-                    break;
-                default:
-                    displayError('Invalid operation');
-                    return;
+            const fn = OPERATIONS[operation];
+            if (!fn) {
+                displayError('Invalid operation');
+                return;
             }
 
-            displayResult(result);
+            try {
+                displayResult(fn(num1, num2));
+            } catch (e) {
+                displayError(e.message);
+            }
         }
 
         function clearAll() {
