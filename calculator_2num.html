@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two Number Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .calculator-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .operation-group {
+            margin-bottom: 20px;
+        }
+
+        .operation-label {
+            display: block;
+            margin-bottom: 12px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .operation-btn {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .operation-btn:hover {
+            background-color: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .operation-btn:active {
+            transform: translateY(0);
+        }
+
+        .clear-btn {
+            grid-column: 1 / -1;
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .clear-btn:hover {
+            background-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .result-container {
+            background-color: #f3f4f6;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .result-label {
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            word-break: break-all;
+        }
+
+        .error {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>Two Number Calculator</h1>
+
+        <div class="input-group">
+            <label for="num1">First Number</label>
+            <input type="number" id="num1" placeholder="Enter first number" step="any">
+        </div>
+
+        <div class="input-group">
+            <label for="num2">Second Number</label>
+            <input type="number" id="num2" placeholder="Enter second number" step="any">
+        </div>
+
+        <div class="operation-group">
+            <span class="operation-label">Select Operation</span>
+            <div class="button-group">
+                <button class="operation-btn" onclick="calculate('add')">Add (+)</button>
+                <button class="operation-btn" onclick="calculate('subtract')">Subtract (-)</button>
+                <button class="operation-btn" onclick="calculate('multiply')">Multiply (×)</button>
+                <button class="operation-btn" onclick="calculate('divide')">Divide (÷)</button>
+                <button class="operation-btn" onclick="calculate('power')">Power (^)</button>
+                <button class="operation-btn" onclick="calculate('modulo')">Modulo (%)</button>
+                <button class="clear-btn" onclick="clearAll()">Clear All</button>
+            </div>
+        </div>
+
+        <div class="result-container">
+            <div class="result-label">Result</div>
+            <div class="result-value" id="result">0</div>
+            <div class="error" id="error"></div>
+        </div>
+    </div>
+
+    <script>
+        function requireNonZeroDivisor(b, label) {
+            if (b === 0) throw new Error(`Cannot ${label} by zero`);
+        }
+
+        const operations = {
+            add:      (a, b) => a + b,
+            subtract: (a, b) => a - b,
+            multiply: (a, b) => a * b,
+            divide:   (a, b) => { requireNonZeroDivisor(b, 'divide'); return a / b; },
+            power:    (a, b) => a ** b,
+            modulo:   (a, b) => { requireNonZeroDivisor(b, 'modulo'); return a % b; }
+        };
+
+        function getInputs() {
+            const num1 = parseFloat(document.getElementById('num1').value);
+            const num2 = parseFloat(document.getElementById('num2').value);
+            return { num1, num2 };
+        }
+
+        function validateInputs(num1, num2) {
+            if (isNaN(num1) || isNaN(num2)) {
+                throw new Error('Please enter valid numbers');
+            }
+        }
+
+        function displayResult(value) {
+            document.getElementById('result').textContent = value;
+            document.getElementById('error').textContent = '';
+        }
+
+        function displayError(message) {
+            document.getElementById('error').textContent = message;
+            document.getElementById('result').textContent = '0';
+        }
+
+        function calculate(operation) {
+            try {
+                const { num1, num2 } = getInputs();
+                validateInputs(num1, num2);
+
+                const op = operations[operation];
+                if (!op) throw new Error('Invalid operation'); // defensive: guards against future programmatic calls with unknown operation names
+
+                displayResult(op(num1, num2));
+            } catch (err) {
+                displayError(err.message);
+            }
+        }
+
+        function clearAll() {
+            document.getElementById('num1').value = '';
+            document.getElementById('num2').value = '';
+            document.getElementById('result').textContent = '0';
+            document.getElementById('error').textContent = '';
+            document.getElementById('num1').focus();
+        }
+
+        // Allow Enter key to trigger addition
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                calculate('add');
+            }
+        });
+    </script>
+</body>
+</html>
