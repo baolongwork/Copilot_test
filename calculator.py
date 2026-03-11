@@ -1,68 +1,64 @@
+#!/usr/bin/env python3
 """
-Simple Calculator for 2 Numbers
-Performs basic arithmetic operations on two numbers
+Calculator for 3 numbers
+Performs basic arithmetic operations on three input numbers
 """
 
-def add(a, b):
-    """Add two numbers"""
-    return a + b
-
-
-def subtract(a, b):
-    """Subtract two numbers"""
-    return a - b
-
-
-def multiply(a, b):
-    """Multiply two numbers"""
-    return a * b
-
-
-def divide(a, b):
-    """Divide two numbers"""
-    if b == 0:
-        return "Error: Cannot divide by zero"
-    return a / b
-
-
-def main():
-    """Main calculator interface"""
-    print("=" * 40)
-    print("        Simple 2-Number Calculator")
-    print("=" * 40)
+def calculator_3_numbers():
+    """
+    Simple calculator that takes 3 numbers and performs operations
+    """
+    print("=" * 50)
+    print("Calculator for 3 Numbers")
+    print("=" * 50)
     
     try:
         # Get input from user
         num1 = float(input("Enter first number: "))
         num2 = float(input("Enter second number: "))
+        num3 = float(input("Enter third number: "))
         
+        # Display menu
         print("\nSelect operation:")
-        print("1. Add (+)")
-        print("2. Subtract (-)")
-        print("3. Multiply (*)")
-        print("4. Divide (/)")
+        print("1. Add all three numbers")
+        print("2. Subtract (num1 - num2 - num3)")
+        print("3. Multiply all three numbers")
+        print("4. Divide (num1 / num2 / num3)")
+        print("5. Average of three numbers")
+        print("6. Find maximum")
+        print("7. Find minimum")
         
-        operation = input("Enter operation (1/2/3/4): ")
+        choice = input("\nEnter operation number (1-7): ").strip()
         
-        # Perform calculation based on operation
-        if operation == '1':
-            result = add(num1, num2)
-            print(f"\n{num1} + {num2} = {result}")
-        elif operation == '2':
-            result = subtract(num1, num2)
-            print(f"\n{num1} - {num2} = {result}")
-        elif operation == '3':
-            result = multiply(num1, num2)
-            print(f"\n{num1} * {num2} = {result}")
-        elif operation == '4':
-            result = divide(num1, num2)
-            print(f"\n{num1} / {num2} = {result}")
+        if choice == '1':
+            result = num1 + num2 + num3
+            print(f"\n{num1} + {num2} + {num3} = {result}")
+        elif choice == '2':
+            result = num1 - num2 - num3
+            print(f"\n{num1} - {num2} - {num3} = {result}")
+        elif choice == '3':
+            result = num1 * num2 * num3
+            print(f"\n{num1} × {num2} × {num3} = {result}")
+        elif choice == '4':
+            if num2 == 0 or num3 == 0:
+                print("\nError: Cannot divide by zero!")
+            else:
+                result = num1 / num2 / num3
+                print(f"\n{num1} ÷ {num2} ÷ {num3} = {result}")
+        elif choice == '5':
+            result = (num1 + num2 + num3) / 3
+            print(f"\nAverage of {num1}, {num2}, {num3} = {result}")
+        elif choice == '6':
+            result = max(num1, num2, num3)
+            print(f"\nMaximum of {num1}, {num2}, {num3} = {result}")
+        elif choice == '7':
+            result = min(num1, num2, num3)
+            print(f"\nMinimum of {num1}, {num2}, {num3} = {result}")
         else:
-            print("\nInvalid operation selected!")
-    
+            print("\nInvalid choice! Please select between 1-7.")
+            
     except ValueError:
         print("\nError: Please enter valid numbers!")
 
-
 if __name__ == "__main__":
-    main()
+    calculator_3_numbers()
