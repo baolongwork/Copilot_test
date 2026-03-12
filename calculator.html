@@ -358,10 +358,18 @@
             };
         }
 
+        function formatResult(value) {
+            if (!Number.isFinite(value)) return String(value);
+            // Round to 10 significant digits to avoid floating-point noise
+            const rounded = parseFloat(value.toPrecision(10));
+            return String(rounded);
+        }
+
         function displayResult(value) {
-            resultDisplay.textContent = String(value);
+            const formatted = formatResult(value);
+            resultDisplay.textContent = formatted;
             calcErrorDisplay.textContent = "";
-            announce("Result updated to " + value);
+            announce("Result updated to " + formatted);
         }
 
         function displayCalcError(message) {
@@ -437,17 +445,21 @@
             showLogin();
         });
 
+        let lastOperation = null;
+
         clearButton.addEventListener("click", clearAll);
         operationButtons.forEach(function(button) {
             button.addEventListener("click", function() {
-                calculate(button.getAttribute("data-operation"));
+                const op = button.getAttribute("data-operation");
+                lastOperation = op;
+                calculate(op);
             });
         });
 
         [num1Input, num2Input].forEach(function(inputElement) {
-            inputElement.addEventListener("keypress", function(event) {
+            inputElement.addEventListener("keydown", function(event) {
                 if (event.key === "Enter") {
-                    calculate("add");
+                    calculate(lastOperation || "add");
                 }
             });
         });

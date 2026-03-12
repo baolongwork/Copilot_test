@@ -79,7 +79,8 @@ def calculator_3_numbers():
         try:
             result = OPERATIONS[choice][1](num1, num2, num3)
             expr = format_expression(choice, num1, num2, num3)
-            print(f"\n{expr} = {result}")
+            formatted = int(result) if isinstance(result, float) and result.is_integer() else result
+            print(f"\n{expr} = {formatted}")
         except ZeroDivisionError as e:
             print(f"\nError: {e}")
 
