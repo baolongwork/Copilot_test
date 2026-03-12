@@ -28,14 +28,31 @@ def average(a, b, c):
 
 
 OPERATIONS = {
-    '1': ('Add all three numbers',       lambda a, b, c: (add(a, b, c),      f"{a} + {b} + {c}")),
-    '2': ('Subtract (num1 - num2 - num3)', lambda a, b, c: (subtract(a, b, c), f"{a} - {b} - {c}")),
-    '3': ('Multiply all three numbers',   lambda a, b, c: (multiply(a, b, c), f"{a} × {b} × {c}")),
-    '4': ('Divide (num1 / num2 / num3)',  lambda a, b, c: (divide(a, b, c),   f"{a} ÷ {b} ÷ {c}")),
-    '5': ('Average of three numbers',    lambda a, b, c: (average(a, b, c),  f"Average of {a}, {b}, {c}")),
-    '6': ('Find maximum',                lambda a, b, c: (max(a, b, c),      f"Maximum of {a}, {b}, {c}")),
-    '7': ('Find minimum',                lambda a, b, c: (min(a, b, c),      f"Minimum of {a}, {b}, {c}")),
+    '1': ('Add all three numbers', add),
+    '2': ('Subtract (num1 - num2 - num3)', subtract),
+    '3': ('Multiply all three numbers', multiply),
+    '4': ('Divide (num1 / num2 / num3)', divide),
+    '5': ('Average of three numbers', average),
+    '6': ('Find maximum', max),
+    '7': ('Find minimum', min),
 }
+
+# Expression templates - computed once at module load time
+EXPRESSION_TEMPLATES = {
+    '1': "{num1} + {num2} + {num3}",
+    '2': "{num1} - {num2} - {num3}",
+    '3': "{num1} × {num2} × {num3}",
+    '4': "{num1} ÷ {num2} ÷ {num3}",
+    '5': "Average of {num1}, {num2}, {num3}",
+    '6': "Maximum of {num1}, {num2}, {num3}",
+    '7': "Minimum of {num1}, {num2}, {num3}",
+}
+
+
+def format_expression(operation_name, num1, num2, num3):
+    """Format the operation expression for display."""
+    template = EXPRESSION_TEMPLATES.get(operation_name, "")
+    return template.format(num1=num1, num2=num2, num3=num3) if template else ""
 
 
 def calculator_3_numbers():
@@ -60,7 +77,8 @@ def calculator_3_numbers():
             return
 
         try:
-            result, expr = OPERATIONS[choice][1](num1, num2, num3)
+            result = OPERATIONS[choice][1](num1, num2, num3)
+            expr = format_expression(choice, num1, num2, num3)
             print(f"\n{expr} = {result}")
         except ZeroDivisionError as e:
             print(f"\nError: {e}")
@@ -71,3 +89,4 @@ def calculator_3_numbers():
 
 if __name__ == "__main__":
     calculator_3_numbers()
+
