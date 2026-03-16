@@ -267,6 +267,7 @@
                     <button type="button" class="operation-btn" data-operation="divide">Divide (/)</button>
                     <button type="button" class="operation-btn" data-operation="power">Power (^)</button>
                     <button type="button" class="operation-btn" data-operation="modulo">Modulo (%)</button>
+                    <button type="button" class="operation-btn" data-operation="perfectSquare">Perfect Square (n²)</button>
                     <button type="button" class="clear-btn" id="clear-btn">Clear All</button>
                 </div>
             </div>
@@ -302,7 +303,8 @@
             modulo: (a, b) => {
                 if (b === 0) throw new Error(MODULO_ZERO_ERROR);
                 return a % b;
-            }
+            },
+            perfectSquare: (a) => a * a  // canonical implementation in perfectSquare.js
         };
 
         const loginSection = document.getElementById("login-section");
@@ -381,7 +383,15 @@
         function calculate(operation) {
             const inputs = getInputs();
 
-            if (Number.isNaN(inputs.num1) || Number.isNaN(inputs.num2)) {
+            if (Number.isNaN(inputs.num1)) {
+                displayCalcError("Please enter valid numbers");
+                return;
+            }
+
+            const singleInputOps = ["perfectSquare"];
+            const isSingleInput = singleInputOps.includes(operation);
+
+            if (!isSingleInput && Number.isNaN(inputs.num2)) {
                 displayCalcError("Please enter valid numbers");
                 return;
             }
@@ -393,7 +403,7 @@
             }
 
             try {
-                displayResult(fn(inputs.num1, inputs.num2));
+                displayResult(isSingleInput ? fn(inputs.num1) : fn(inputs.num1, inputs.num2));
             } catch (error) {
                 displayCalcError(error.message);
             }
