@@ -45,7 +45,7 @@ async function fetchUsers() {
     const res = await axios.get(`${BASE}/users`)
     users.value = res.data || []
   } catch (e) {
-    error.value = 'Failed to fetch users'
+    error.value = `Failed to fetch users: ${e.message}`
   }
 }
 
@@ -69,7 +69,7 @@ async function submitForm() {
     cancelEdit()
     await fetchUsers()
   } catch (e) {
-    error.value = 'Operation failed'
+    error.value = `${editingId.value ? 'Update' : 'Create'} failed: ${e.message}`
   }
 }
 
@@ -78,7 +78,7 @@ async function deleteUser(id) {
     await axios.delete(`${BASE}/users/${id}`)
     await fetchUsers()
   } catch (e) {
-    error.value = 'Delete failed'
+    error.value = `Delete failed: ${e.message}`
   }
 }
 

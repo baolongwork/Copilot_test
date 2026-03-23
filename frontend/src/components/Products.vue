@@ -47,7 +47,7 @@ async function fetchProducts() {
     const res = await axios.get(`${BASE}/products`)
     products.value = res.data || []
   } catch (e) {
-    error.value = 'Failed to fetch products'
+    error.value = `Failed to fetch products: ${e.message}`
   }
 }
 
@@ -71,7 +71,7 @@ async function submitForm() {
     cancelEdit()
     await fetchProducts()
   } catch (e) {
-    error.value = 'Operation failed'
+    error.value = `${editingId.value ? 'Update' : 'Create'} failed: ${e.message}`
   }
 }
 
@@ -80,7 +80,7 @@ async function deleteProduct(id) {
     await axios.delete(`${BASE}/products/${id}`)
     await fetchProducts()
   } catch (e) {
-    error.value = 'Delete failed'
+    error.value = `Delete failed: ${e.message}`
   }
 }
 

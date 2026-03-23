@@ -209,7 +209,7 @@ func updateProduct(c *gin.Context) {
 	}
 	var input struct {
 		Name        string   `json:"name"`
-		Description string   `json:"description"`
+		Description *string  `json:"description"`
 		Price       *float64 `json:"price"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -223,8 +223,8 @@ func updateProduct(c *gin.Context) {
 			if input.Name != "" {
 				products[i].Name = input.Name
 			}
-			if input.Description != "" {
-				products[i].Description = input.Description
+			if input.Description != nil {
+				products[i].Description = *input.Description
 			}
 			if input.Price != nil {
 				products[i].Price = *input.Price
