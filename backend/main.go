@@ -208,9 +208,9 @@ func updateProduct(c *gin.Context) {
 		return
 	}
 	var input struct {
-		Name        string  `json:"name"`
-		Description string  `json:"description"`
-		Price       float64 `json:"price"`
+		Name        string   `json:"name"`
+		Description string   `json:"description"`
+		Price       *float64 `json:"price"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -226,8 +226,8 @@ func updateProduct(c *gin.Context) {
 			if input.Description != "" {
 				products[i].Description = input.Description
 			}
-			if input.Price > 0 {
-				products[i].Price = input.Price
+			if input.Price != nil {
+				products[i].Price = *input.Price
 			}
 			c.JSON(http.StatusOK, products[i])
 			return

@@ -19,7 +19,7 @@
           <td>{{ product.id }}</td>
           <td>{{ product.name }}</td>
           <td>{{ product.description }}</td>
-          <td>${{ product.price.toFixed(2) }}</td>
+          <td>${{ (product.price ?? 0).toFixed(2) }}</td>
           <td>{{ new Date(product.created_at).toLocaleString() }}</td>
           <td>
             <button @click="startEdit(product)" style="margin-right:0.5rem;padding:0.3rem 0.7rem;background:#3498db;color:white;border:none;border-radius:4px;cursor:pointer;">Edit</button>
