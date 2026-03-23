@@ -1,8 +1,4 @@
 name: copilot-setup-steps
-
-on:
-  push:
-  pull_request:
    
 jobs:
 
