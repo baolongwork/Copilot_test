@@ -1,0 +1,6 @@
+# Go build artifacts
+backend/rest-api
+
+# Node
+frontend/node_modules/
+frontend/dist/
