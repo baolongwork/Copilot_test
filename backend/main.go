@@ -1,18 +1,27 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"net/http"
 	"strconv"
 	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
+)
+
+const (
+	sessionTTL      = 24 * time.Hour
+	minPasswordLen  = 8
 )
 
 type User struct {
 	ID        int       `json:"id"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
+	Password  string    `json:"-"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -24,6 +33,11 @@ type Product struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
+type session struct {
+	userID    int
+	expiresAt time.Time
+}
+
 var (
 	users      []User
 	products   []Product
@@ -31,7 +45,18 @@ var (
 	productMu  sync.RWMutex
 	userNextID = 1
 	prodNextID = 1
+
+	sessions  = map[string]session{}
+	sessionMu sync.RWMutex
 )
+
+func generateToken() (string, error) {
+	b := make([]byte, 16)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(b), nil
+}
 
 func corsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -51,6 +76,10 @@ func main() {
 	r.Use(corsMiddleware())
 
 	api := r.Group("/api")
+
+	// Auth routes
+	api.POST("/login", loginHandler)
+	api.POST("/logout", logoutHandler)
 
 	// User routes
 	api.GET("/users", getUsers)
@@ -95,16 +124,30 @@ func getUserByID(c *gin.Context) {
 
 func createUser(c *gin.Context) {
 	var input struct {
-		Name  string `json:"name" binding:"required"`
-		Email string `json:"email" binding:"required"`
+		Name     string `json:"name" binding:"required"`
+		Email    string `json:"email" binding:"required"`
+		Password string `json:"password"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	if len(input.Password) > 0 && len(input.Password) < minPasswordLen {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "password must be at least 8 characters"})
+		return
+	}
+	hashedPassword := ""
+	if input.Password != "" {
+		hash, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "could not hash password"})
+			return
+		}
+		hashedPassword = string(hash)
+	}
 	userMu.Lock()
 	defer userMu.Unlock()
-	u := User{ID: userNextID, Name: input.Name, Email: input.Email, CreatedAt: time.Now()}
+	u := User{ID: userNextID, Name: input.Name, Email: input.Email, Password: hashedPassword, CreatedAt: time.Now()}
 	userNextID++
 	users = append(users, u)
 	c.JSON(http.StatusCreated, u)
@@ -252,4 +295,50 @@ func deleteProduct(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusNotFound, gin.H{"error": "product not found"})
+}
+
+// Auth handlers
+func loginHandler(c *gin.Context) {
+	var input struct {
+		Email    string `json:"email" binding:"required"`
+		Password string `json:"password" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	userMu.RLock()
+	var matched *User
+	for i := range users {
+		if users[i].Email == input.Email {
+			matched = &users[i]
+			break
+		}
+	}
+	userMu.RUnlock()
+	if matched == nil || bcrypt.CompareHashAndPassword([]byte(matched.Password), []byte(input.Password)) != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
+		return
+	}
+	token, err := generateToken()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not generate session token"})
+		return
+	}
+	sessionMu.Lock()
+	sessions[token] = session{userID: matched.ID, expiresAt: time.Now().Add(sessionTTL)}
+	sessionMu.Unlock()
+	c.JSON(http.StatusOK, gin.H{"token": token, "user": matched})
+}
+
+func logoutHandler(c *gin.Context) {
+	token := c.GetHeader("Authorization")
+	if token == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing Authorization header"})
+		return
+	}
+	sessionMu.Lock()
+	delete(sessions, token)
+	sessionMu.Unlock()
+	c.JSON(http.StatusOK, gin.H{"message": "logged out"})
 }
