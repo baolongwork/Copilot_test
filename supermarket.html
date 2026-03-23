@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supermarket Calculator</title>
+    <style>
+        :root {
+            --brand: #166534;
+            --brand-hover: #14532d;
+            --danger: #b91c1c;
+            --danger-hover: #991b1b;
+            --accent: #334155;
+            --accent-hover: #1e293b;
+            --surface: #ffffff;
+            --surface-muted: #f0fdf4;
+            --border: #cbd5e1;
+            --focus-ring: #0ea5e9;
+            --text: #0f172a;
+            --error: #b91c1c;
+            --success: #166534;
+            --muted-text: #475569;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            background: radial-gradient(circle at 20% 20%, #dcfce7 0, #e2e8f0 40%, #cbd5e1 100%);
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text);
+            padding: 1.5rem 1rem;
+        }
+
+        .app-container {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.2);
+            width: 100%;
+            max-width: 560px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 0.25rem;
+            font-size: 1.6rem;
+            color: var(--brand);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--muted-text);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            font-size: 1rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+
+        section { margin-bottom: 1.5rem; }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 0.5rem;
+            align-items: end;
+        }
+
+        .input-group { display: flex; flex-direction: column; gap: 0.3rem; }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--muted-text);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 0.4rem;
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+
+        input:focus {
+            outline: 3px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+
+        button {
+            padding: 0.6rem 0.9rem;
+            border: none;
+            border-radius: 0.4rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+
+        button:focus-visible {
+            outline: 3px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+
+        .btn-add {
+            background-color: var(--brand);
+            color: #fff;
+            white-space: nowrap;
+            align-self: flex-end;
+        }
+        .btn-add:hover { background-color: var(--brand-hover); }
+
+        .btn-remove {
+            background-color: transparent;
+            color: var(--danger);
+            border: 1.5px solid var(--danger);
+            padding: 0.3rem 0.55rem;
+            font-size: 0.85rem;
+            border-radius: 0.3rem;
+        }
+        .btn-remove:hover { background-color: #fee2e2; }
+
+        .btn-clear {
+            background-color: var(--danger);
+            color: #fff;
+        }
+        .btn-clear:hover { background-color: var(--danger-hover); }
+
+        .btn-print {
+            background-color: var(--accent);
+            color: #fff;
+        }
+        .btn-print:hover { background-color: var(--accent-hover); }
+
+        .error-msg {
+            color: var(--error);
+            font-size: 0.85rem;
+            min-height: 1.1rem;
+            margin-top: 0.4rem;
+        }
+
+        /* Items table */
+        .items-wrapper {
+            border: 1.5px solid var(--border);
+            border-radius: 0.4rem;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        thead tr { background-color: var(--surface-muted); }
+
+        th, td {
+            padding: 0.55rem 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--muted-text);
+        }
+
+        td.num { text-align: right; }
+
+        tbody tr:last-child td { border-bottom: none; }
+
+        .empty-row td {
+            text-align: center;
+            color: var(--muted-text);
+            padding: 1.2rem;
+            font-style: italic;
+        }
+
+        /* Adjustments row (discount + tax) */
+        .adjustments-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Summary box */
+        .summary-box {
+            background-color: var(--surface-muted);
+            border: 1.5px solid #bbf7d0;
+            border-radius: 0.4rem;
+            padding: 1rem 1.25rem;
+        }
+
+        .summary-line {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            padding: 0.25rem 0;
+            color: var(--muted-text);
+        }
+
+        .summary-line.total {
+            border-top: 2px solid #86efac;
+            margin-top: 0.5rem;
+            padding-top: 0.6rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--brand);
+        }
+
+        .summary-line.discount-line { color: var(--danger); }
+
+        /* Action buttons row */
+        .action-row {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        /* Screen reader only */
+        .sr-only {
+            position: absolute;
+            width: 1px; height: 1px;
+            padding: 0; margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Print styles */
+        @media print {
+            body { background: none; padding: 0; }
+            .app-container { box-shadow: none; max-width: 100%; padding: 1rem; }
+            .no-print { display: none !important; }
+        }
+
+        @media (max-width: 480px) {
+            .input-row {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto auto;
+            }
+            .input-row .input-group:first-child { grid-column: 1 / -1; }
+            .btn-add { grid-column: 1 / -1; }
+            .adjustments-row { grid-template-columns: 1fr; }
+            .action-row { flex-direction: column; }
+            .action-row button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <main class="app-container" aria-labelledby="page-title">
+        <h1 id="page-title">🛒 Supermarket Calculator</h1>
+        <p class="subtitle">Add items, apply discount &amp; tax, and get your total.</p>
+
+        <!-- Add item section -->
+        <section aria-labelledby="add-item-title">
+            <h2 id="add-item-title">Add Item</h2>
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="item-name">Item Name</label>
+                    <input type="text" id="item-name" placeholder="e.g. Apple" autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label for="item-qty">Qty</label>
+                    <input type="number" id="item-qty" placeholder="1" min="0.01" step="any" value="1">
+                </div>
+                <div class="input-group">
+                    <label for="item-price">Price ($)</label>
+                    <input type="number" id="item-price" placeholder="0.00" min="0" step="any">
+                </div>
+                <button type="button" class="btn-add no-print" id="add-btn" aria-label="Add item to cart">Add</button>
+            </div>
+            <p class="error-msg" id="add-error" aria-live="assertive"></p>
+        </section>
+
+        <!-- Items list -->
+        <section aria-labelledby="cart-title">
+            <h2 id="cart-title">Cart</h2>
+            <div class="items-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th class="num">Qty</th>
+                            <th class="num">Unit Price</th>
+                            <th class="num">Subtotal</th>
+                            <th class="no-print"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="cart-body">
+                        <tr class="empty-row" id="empty-row">
+                            <td colspan="5">No items added yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Discount & Tax -->
+        <section aria-labelledby="adjustments-title" class="no-print">
+            <h2 id="adjustments-title">Adjustments</h2>
+            <div class="adjustments-row">
+                <div class="input-group">
+                    <label for="discount">Discount (%)</label>
+                    <input type="number" id="discount" placeholder="0" min="0" max="100" step="any" value="0">
+                </div>
+                <div class="input-group">
+                    <label for="tax">Tax (%)</label>
+                    <input type="number" id="tax" placeholder="0" min="0" max="100" step="any" value="0">
+                </div>
+            </div>
+        </section>
+
+        <!-- Summary -->
+        <section aria-labelledby="summary-title">
+            <h2 id="summary-title">Summary</h2>
+            <div class="summary-box" role="status" aria-live="polite" aria-label="Order summary">
+                <div class="summary-line">
+                    <span>Subtotal</span>
+                    <span id="s-subtotal">$0.00</span>
+                </div>
+                <div class="summary-line discount-line" id="discount-row">
+                    <span id="s-discount-label">Discount (0%)</span>
+                    <span id="s-discount">-$0.00</span>
+                </div>
+                <div class="summary-line" id="tax-row">
+                    <span id="s-tax-label">Tax (0%)</span>
+                    <span id="s-tax">+$0.00</span>
+                </div>
+                <div class="summary-line total">
+                    <span>Total</span>
+                    <span id="s-total">$0.00</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Actions -->
+        <div class="action-row no-print">
+            <button type="button" class="btn-clear" id="clear-btn">Clear All</button>
+            <button type="button" class="btn-print" id="print-btn">Print Receipt</button>
+        </div>
+
+        <p id="sr-announce" class="sr-only" aria-live="polite"></p>
+    </main>
+
+    <script>
+        // ---------- State ----------
+        let items = [];   // { id, name, qty, price }
+        let nextId = 1;
+
+        // ---------- DOM refs ----------
+        const itemNameInput  = document.getElementById("item-name");
+        const itemQtyInput   = document.getElementById("item-qty");
+        const itemPriceInput = document.getElementById("item-price");
+        const addBtn         = document.getElementById("add-btn");
+        const addError       = document.getElementById("add-error");
+        const cartBody       = document.getElementById("cart-body");
+        const emptyRow       = document.getElementById("empty-row");
+
+        const discountInput  = document.getElementById("discount");
+        const taxInput       = document.getElementById("tax");
+
+        const sSubtotal      = document.getElementById("s-subtotal");
+        const sDiscountLabel = document.getElementById("s-discount-label");
+        const sDiscount      = document.getElementById("s-discount");
+        const sTaxLabel      = document.getElementById("s-tax-label");
+        const sTax           = document.getElementById("s-tax");
+        const sTotal         = document.getElementById("s-total");
+
+        const clearBtn       = document.getElementById("clear-btn");
+        const printBtn       = document.getElementById("print-btn");
+        const srAnnounce     = document.getElementById("sr-announce");
+
+        // ---------- Helpers ----------
+        function fmt(value) {
+            return "$" + value.toFixed(2);
+        }
+
+        function announce(msg) {
+            srAnnounce.textContent = "";
+            // Force re-announcement by changing content
+            requestAnimationFrame(function() { srAnnounce.textContent = msg; });
+        }
+
+        function clamp(value, min, max) {
+            return Math.min(max, Math.max(min, value));
+        }
+
+        // ---------- Rendering ----------
+        function renderCart() {
+            // Remove all rows except the template empty-row (kept in DOM but hidden)
+            const existing = cartBody.querySelectorAll("tr:not(#empty-row)");
+            existing.forEach(function(r) { r.remove(); });
+
+            if (items.length === 0) {
+                emptyRow.style.display = "";
+                return;
+            }
+            emptyRow.style.display = "none";
+
+            items.forEach(function(item) {
+                const subtotal = item.qty * item.price;
+                const tr = document.createElement("tr");
+                tr.dataset.id = item.id;
+                tr.innerHTML =
+                    "<td>" + escapeHtml(item.name) + "</td>" +
+                    "<td class='num'>" + item.qty + "</td>" +
+                    "<td class='num'>" + fmt(item.price) + "</td>" +
+                    "<td class='num'>" + fmt(subtotal) + "</td>" +
+                    "<td class='no-print'>" +
+                        "<button type='button' class='btn-remove' data-id='" + item.id + "' aria-label='Remove " + escapeHtml(item.name) + "'>✕</button>" +
+                    "</td>";
+                cartBody.appendChild(tr);
+            });
+        }
+
+        function renderSummary() {
+            const discountPct = clamp(parseFloat(discountInput.value) || 0, 0, 100);
+            const taxPct      = clamp(parseFloat(taxInput.value) || 0, 0, 100);
+
+            const subtotal      = items.reduce(function(sum, i) { return sum + i.qty * i.price; }, 0);
+            const discountAmt   = subtotal * (discountPct / 100);
+            const afterDiscount = subtotal - discountAmt;
+            const taxAmt        = afterDiscount * (taxPct / 100);
+            const total         = afterDiscount + taxAmt;
+
+            sSubtotal.textContent      = fmt(subtotal);
+            sDiscountLabel.textContent = "Discount (" + discountPct + "%)";
+            sDiscount.textContent      = "-" + fmt(discountAmt);
+            sTaxLabel.textContent      = "Tax (" + taxPct + "%)";
+            sTax.textContent           = "+" + fmt(taxAmt);
+            sTotal.textContent         = fmt(total);
+        }
+
+        function render() {
+            renderCart();
+            renderSummary();
+        }
+
+        // ---------- Security: escape HTML ----------
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        // ---------- Add item ----------
+        function addItem() {
+            const name  = itemNameInput.value.trim();
+            const qty   = parseFloat(itemQtyInput.value);
+            const price = parseFloat(itemPriceInput.value);
+
+            if (!name) {
+                addError.textContent = "Please enter an item name.";
+                itemNameInput.focus();
+                return;
+            }
+            if (!Number.isFinite(qty) || qty <= 0) {
+                addError.textContent = "Quantity must be a positive number.";
+                itemQtyInput.focus();
+                return;
+            }
+            if (!Number.isFinite(price) || price < 0) {
+                addError.textContent = "Price must be zero or a positive number.";
+                itemPriceInput.focus();
+                return;
+            }
+
+            addError.textContent = "";
+            items.push({ id: nextId++, name: name, qty: qty, price: price });
+            render();
+            announce(name + " added. " + items.length + " item" + (items.length === 1 ? "" : "s") + " in cart.");
+
+            // Reset add-form fields (keep qty at 1 for convenience)
+            itemNameInput.value  = "";
+            itemQtyInput.value   = "1";
+            itemPriceInput.value = "";
+            itemNameInput.focus();
+        }
+
+        // ---------- Remove item ----------
+        function removeItem(id) {
+            const item = items.find(function(i) { return i.id === id; });
+            items = items.filter(function(i) { return i.id !== id; });
+            render();
+            if (item) {
+                announce(item.name + " removed.");
+            }
+        }
+
+        // ---------- Clear all ----------
+        function clearAll() {
+            items = [];
+            itemNameInput.value  = "";
+            itemQtyInput.value   = "1";
+            itemPriceInput.value = "";
+            discountInput.value  = "0";
+            taxInput.value       = "0";
+            addError.textContent = "";
+            render();
+            announce("Cart cleared.");
+            itemNameInput.focus();
+        }
+
+        // ---------- Event listeners ----------
+        addBtn.addEventListener("click", addItem);
+
+        [itemNameInput, itemQtyInput, itemPriceInput].forEach(function(el) {
+            el.addEventListener("keydown", function(e) {
+                if (e.key === "Enter") { addItem(); }
+            });
+        });
+
+        cartBody.addEventListener("click", function(e) {
+            const btn = e.target.closest(".btn-remove");
+            if (btn) { removeItem(Number(btn.dataset.id)); }
+        });
+
+        discountInput.addEventListener("input", function() {
+            var v = parseFloat(discountInput.value);
+            if (discountInput.value !== "" && (!Number.isFinite(v) || v < 0 || v > 100)) {
+                discountInput.value = clamp(Number.isFinite(v) ? v : 0, 0, 100);
+            }
+            renderSummary();
+        });
+        taxInput.addEventListener("input", function() {
+            var v = parseFloat(taxInput.value);
+            if (taxInput.value !== "" && (!Number.isFinite(v) || v < 0 || v > 100)) {
+                taxInput.value = clamp(Number.isFinite(v) ? v : 0, 0, 100);
+            }
+            renderSummary();
+        });
+
+        clearBtn.addEventListener("click", clearAll);
+        printBtn.addEventListener("click", function() { window.print(); });
+
+        // ---------- Initial render ----------
+        render();
+    </script>
+</body>
+</html>
