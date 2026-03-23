@@ -1,7 +1,11 @@
 name: copilot-setup-steps
 
-runs:
-  using: "composite"
+on:
+  push:
+  pull_request:
+   
+jobs:
+
   steps:
     - name: Install Node.js
       uses: actions/setup-node@v4
