@@ -15,6 +15,12 @@ function validateEmail(email) {
 	}
 }
 
+function validatePassword(password) {
+	if (typeof password !== "string" || password.length < 6) {
+		throw new Error("Password must be at least 6 characters.");
+	}
+}
+
 function getUsers() {
 	return [...users];
 }
@@ -24,10 +30,11 @@ function getUserById(id) {
 }
 
 function addUser(payload) {
-	const { name, email } = payload || {};
+	const { name, email, password } = payload || {};
 
 	validateName(name);
 	validateEmail(email);
+	validatePassword(password);
 
 	const duplicated = users.some(
 		(user) => user.email.toLowerCase() === email.toLowerCase()
@@ -41,13 +48,14 @@ function addUser(payload) {
 		id: nextId,
 		name: name.trim(),
 		email: email.trim(),
+		password,
 		createdAt: new Date().toISOString(),
 	};
 
 	nextId += 1;
 	users.push(user);
 
-	return user;
+	return { id: user.id, name: user.name, email: user.email, createdAt: user.createdAt };
 }
 
 function updateUser(id, payload) {
@@ -94,10 +102,27 @@ function deleteUser(id) {
 	return deletedUser;
 }
 
+function authenticateUser(email, password) {
+	if (typeof email !== "string" || typeof password !== "string") {
+		throw new Error("Email and password are required.");
+	}
+
+	const user = users.find(
+		(u) => u.email.toLowerCase() === email.toLowerCase()
+	);
+
+	if (!user || user.password !== password) {
+		throw new Error("Invalid email or password.");
+	}
+
+	return { id: user.id, name: user.name, email: user.email };
+}
+
 module.exports = {
 	getUsers,
 	getUserById,
 	addUser,
 	updateUser,
 	deleteUser,
+	authenticateUser,
 };
