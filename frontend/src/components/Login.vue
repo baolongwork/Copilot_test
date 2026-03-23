@@ -32,6 +32,15 @@
         </button>
       </form>
       <p v-if="error" style="color:red;margin-top:1rem;text-align:center;font-size:0.9rem;">{{ error }}</p>
+      <div style="margin-top:1rem;text-align:center;">
+        <a
+          href="#"
+          @click.prevent="emit('forgot-password')"
+          style="color:#3498db;font-size:0.9rem;text-decoration:none;"
+        >
+          Forgot your password?
+        </a>
+      </div>
     </div>
   </div>
 </template>
@@ -42,7 +51,7 @@ import axios from 'axios'
 
 const BASE = 'http://localhost:8080/api'
 
-const emit = defineEmits(['login'])
+const emit = defineEmits(['login', 'forgot-password'])
 
 const form = ref({ email: '', password: '' })
 const error = ref('')

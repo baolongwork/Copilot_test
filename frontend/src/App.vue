@@ -1,7 +1,8 @@
 <template>
   <div>
-    <Login v-if="!isLoggedIn" @login="handleLogin" />
-    <template v-else>
+    <Login v-if="!isLoggedIn && authView === 'login'" @login="handleLogin" @forgot-password="authView = 'forgot-password'" />
+    <ForgotPassword v-else-if="!isLoggedIn && authView === 'forgot-password'" @back-to-login="authView = 'login'" />
+    <template v-else-if="isLoggedIn">
       <nav style="background:#2c3e50;padding:1rem;display:flex;gap:1rem;align-items:center;">
         <button @click="currentView='users'" :style="navBtnStyle('users')">Users</button>
         <button @click="currentView='products'" :style="navBtnStyle('products')">Products</button>
@@ -22,10 +23,12 @@ import axios from 'axios'
 import Users from './components/Users.vue'
 import Products from './components/Products.vue'
 import Login from './components/Login.vue'
+import ForgotPassword from './components/ForgotPassword.vue'
 
 const BASE = 'http://localhost:8080/api'
 
 const currentView = ref('users')
+const authView = ref('login')
 const isLoggedIn = ref(!!localStorage.getItem('session_token'))
 const currentUser = ref((() => {
   try { return JSON.parse(localStorage.getItem('session_user') || 'null') } catch { return null }
@@ -51,6 +54,7 @@ async function handleLogout() {
   localStorage.removeItem('session_user')
   isLoggedIn.value = false
   currentUser.value = null
+  authView.value = 'login'
 }
 
 function navBtnStyle(view) {
