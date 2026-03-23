@@ -38,6 +38,13 @@ type session struct {
 	expiresAt time.Time
 }
 
+const resetTokenTTL = 1 * time.Hour
+
+type resetToken struct {
+	userID    int
+	expiresAt time.Time
+}
+
 var (
 	users      []User
 	products   []Product
@@ -48,6 +55,9 @@ var (
 
 	sessions  = map[string]session{}
 	sessionMu sync.RWMutex
+
+	resetTokens  = map[string]resetToken{}
+	resetTokenMu sync.Mutex
 )
 
 func generateToken() (string, error) {
@@ -80,6 +90,8 @@ func main() {
 	// Auth routes
 	api.POST("/login", loginHandler)
 	api.POST("/logout", logoutHandler)
+	api.POST("/forgot-password", forgotPasswordHandler)
+	api.POST("/reset-password", resetPasswordHandler)
 
 	// User routes
 	api.GET("/users", getUsers)
@@ -341,4 +353,78 @@ func logoutHandler(c *gin.Context) {
 	delete(sessions, token)
 	sessionMu.Unlock()
 	c.JSON(http.StatusOK, gin.H{"message": "logged out"})
+}
+
+func forgotPasswordHandler(c *gin.Context) {
+	var input struct {
+		Email string `json:"email" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	userMu.RLock()
+	var matched *User
+	for i := range users {
+		if users[i].Email == input.Email {
+			matched = &users[i]
+			break
+		}
+	}
+	userMu.RUnlock()
+	// Always respond with success to avoid user enumeration
+	if matched == nil {
+		c.JSON(http.StatusOK, gin.H{"message": "If that email is registered, a reset token has been sent."})
+		return
+	}
+	token, err := generateToken()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not generate reset token"})
+		return
+	}
+	resetTokenMu.Lock()
+	resetTokens[token] = resetToken{userID: matched.ID, expiresAt: time.Now().Add(resetTokenTTL)}
+	resetTokenMu.Unlock()
+	// In a real application the token would be emailed; here we return it directly for demo purposes.
+	c.JSON(http.StatusOK, gin.H{"message": "If that email is registered, a reset token has been sent.", "reset_token": token})
+}
+
+func resetPasswordHandler(c *gin.Context) {
+	var input struct {
+		Token    string `json:"token" binding:"required"`
+		Password string `json:"password" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if len(input.Password) < minPasswordLen {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "password must be at least 8 characters"})
+		return
+	}
+	resetTokenMu.Lock()
+	rt, ok := resetTokens[input.Token]
+	if ok {
+		delete(resetTokens, input.Token)
+	}
+	resetTokenMu.Unlock()
+	if !ok || time.Now().After(rt.expiresAt) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid or expired reset token"})
+		return
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not hash password"})
+		return
+	}
+	userMu.Lock()
+	defer userMu.Unlock()
+	for i := range users {
+		if users[i].ID == rt.userID {
+			users[i].Password = string(hash)
+			c.JSON(http.StatusOK, gin.H{"message": "password has been reset successfully"})
+			return
+		}
+	}
+	c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 }
