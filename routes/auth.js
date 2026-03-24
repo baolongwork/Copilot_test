@@ -91,34 +91,14 @@ router.post("/register", requireGuest, async (req, res) => {
 	res.status(201).json({ message: "Account created.", redirect: "/dashboard" });
 });
 
+// GET /api/me (protected)
+router.get("/api/me", requireAuth, (req, res) => {
+	res.json({ id: req.session.userId, name: req.session.userName });
+});
+
 // GET /dashboard (protected)
 router.get("/dashboard", requireAuth, (req, res) => {
-	res.send(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <title>Dashboard</title>
-      <style>
-        body { font-family: Arial, sans-serif; display: flex; justify-content: center;
-               align-items: center; min-height: 100vh; margin: 0; background: #f0f2f5; }
-        .card { background: #fff; padding: 2rem 2.5rem; border-radius: 8px;
-                box-shadow: 0 2px 8px rgba(0,0,0,.15); text-align: center; }
-        h1 { color: #333; }
-        p { color: #555; }
-        a { color: #4f46e5; text-decoration: none; font-weight: 600; }
-        a:hover { text-decoration: underline; }
-      </style>
-    </head>
-    <body>
-      <div class="card">
-        <h1>Welcome, ${req.session.userName}!</h1>
-        <p>You are now logged in.</p>
-        <p><a href="/logout">Logout</a></p>
-      </div>
-    </body>
-    </html>
-  `);
+	res.sendFile(path.join(__dirname, "../views/dashboard.html"));
 });
 
 // POST /logout

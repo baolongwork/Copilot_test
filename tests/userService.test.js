@@ -3,7 +3,7 @@ describe("userServersion", () => {
 
 	beforeEach(() => {
 		jest.resetModules();
-		service = require("../userServersion");
+		service = require("../userService");
 	});
 
 	describe("addUser", () => {
