@@ -18,9 +18,3 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: npm test
