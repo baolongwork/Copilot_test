@@ -19,16 +19,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Checkout Firewall
+      - name: NPM Registry
         run: |
-          echo "--- NPM ---"
-          curl -I -s --connect-timeout 5 https://registry.npmjs.org | grep "HTTP/"
-          
-          echo "--- Nodejs ---"
-          curl -I -s --connect-timeout 5 https://nodejs.org | grep "HTTP/"
-          
-          echo "--- IFCONFIG"
-          curl -s --connect-timeout 5 https://ifconfig.me
+          echo "0.0.0.0 registry.npmjs.org" | sudo tee -a /etc/hosts
+          echo "0.0.0.0 google.com" | sudo tee -a /etc/hosts
+
+      - name: Check
+        run: curl https://google.com
 
       - name: Install Nodejs
         uses: actions/setup-node@v4
