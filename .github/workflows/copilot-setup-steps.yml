@@ -19,6 +19,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Check Network
+        run: curl -I https://google.com
+
       - name: Install Nodejs
         uses: actions/setup-node@v4
         with:
