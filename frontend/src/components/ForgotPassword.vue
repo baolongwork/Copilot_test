@@ -86,7 +86,7 @@
           Your password has been updated successfully. You can now sign in with your new password.
         </p>
         <button
-          @click="$router.push('/login')"
+          @click="emit('back-to-login')"
           style="width:100%;padding:0.6rem;background:#3498db;color:white;border:none;border-radius:4px;cursor:pointer;font-size:1rem;"
         >
           Back to Login
@@ -96,7 +96,7 @@
       <div v-if="step !== 'done'" style="margin-top:1rem;text-align:center;">
         <a
           href="#"
-          @click.prevent="$router.push('/login')"
+          @click.prevent="emit('back-to-login')"
           style="color:#3498db;font-size:0.9rem;text-decoration:none;"
         >
           Back to Login
@@ -108,11 +108,11 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 const BASE = 'http://localhost:8080/api'
-const router = useRouter()
+
+const emit = defineEmits(['back-to-login'])
 
 const step = ref('request')
 const email = ref('')
