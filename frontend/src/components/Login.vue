@@ -35,7 +35,7 @@
       <div style="margin-top:1rem;text-align:center;">
         <a
           href="#"
-          @click.prevent="emit('forgot-password')"
+          @click.prevent="$router.push('/forgot-password')"
           style="color:#3498db;font-size:0.9rem;text-decoration:none;"
         >
           Forgot your password?
@@ -47,11 +47,12 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 
 const BASE = 'http://localhost:8080/api'
-
-const emit = defineEmits(['login', 'forgot-password'])
+const router = useRouter()
+const route = useRoute()
 
 const form = ref({ email: '', password: '' })
 const error = ref('')
@@ -62,7 +63,10 @@ async function submit() {
   loading.value = true
   try {
     const res = await axios.post(`${BASE}/login`, form.value)
-    emit('login', { token: res.data.token, user: res.data.user })
+    localStorage.setItem('session_token', res.data.token)
+    localStorage.setItem('session_user', JSON.stringify(res.data.user))
+    const redirect = route.query.redirect || '/'
+    router.push(redirect)
   } catch (e) {
     error.value = e.response?.data?.error || 'Login failed. Please try again.'
   } finally {

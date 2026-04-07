@@ -151,9 +151,6 @@
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
-        const params = new URLSearchParams(window.location.search);
-        const redirectUrl = params.get('redirect') || 'http://localhost:5173';
-
         try {
           const res = await fetch(`${API_BASE}/login`, {
             method: 'POST',
@@ -170,7 +167,7 @@
           localStorage.setItem('session_token', data.token);
           localStorage.setItem('session_user', JSON.stringify(data.user));
 
-          window.location.href = redirectUrl;
+          window.location.href = '/';
         } catch (err) {
           errorMsg.textContent = err.message;
           errorMsg.style.display = 'block';
@@ -182,9 +179,7 @@
 
       document.getElementById('forgotLink').addEventListener('click', (e) => {
         e.preventDefault();
-        const params = new URLSearchParams(window.location.search);
-        const redirect = params.get('redirect') || '';
-        window.location.href = 'forgot-password.html' + (redirect ? `?redirect=${encodeURIComponent(redirect)}` : '');
+        alert('Please contact an administrator to reset your password.');
       });
     </script>
   </body>
