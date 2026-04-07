@@ -2,5 +2,7 @@
 backend/rest-api
 
 # Node
+node_modules/
 frontend/node_modules/
 frontend/dist/
+login/node_modules/
