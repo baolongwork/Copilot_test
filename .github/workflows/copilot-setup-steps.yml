@@ -19,10 +19,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: NPM Registry
-        run: |
-          echo "0.0.0.0 registry.npmjs.org" | sudo tee -a /etc/hosts
-          echo "0.0.0.0 google.com" | sudo tee -a /etc/hosts
+      - name: Firewall
+        run: sudo iptables -A OUTPUT -p tcp --dport 443 -j DROP
 
       - name: Check
         run: curl https://google.com
