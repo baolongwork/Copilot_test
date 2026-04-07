@@ -35,8 +35,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { API_BASE } from '../config.js'
 
-const BASE = 'http://localhost:8080/api'
+const BASE = API_BASE
 const products = ref([])
 const error = ref('')
 const editingId = ref(null)

@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	sessionTTL      = 24 * time.Hour
-	minPasswordLen  = 8
+	sessionTTL     = 24 * time.Hour
+	minPasswordLen = 8
+	resetTokenTTL  = 1 * time.Hour
 )
 
 type User struct {
@@ -37,8 +38,6 @@ type session struct {
 	userID    int
 	expiresAt time.Time
 }
-
-const resetTokenTTL = 1 * time.Hour
 
 type resetToken struct {
 	userID    int

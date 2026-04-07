@@ -109,8 +109,9 @@
 <script setup>
 import { ref } from 'vue'
 import axios from 'axios'
+import { API_BASE } from '../config.js'
 
-const BASE = 'http://localhost:8080/api'
+const BASE = API_BASE
 
 const emit = defineEmits(['back-to-login'])
 

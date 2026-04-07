@@ -322,6 +322,8 @@
         const clearButton = document.getElementById("clear-btn");
         const operationButtons = document.querySelectorAll(".operation-btn");
 
+        let lastOperation = null;
+
         function announce(message) {
             screenReaderStatus.textContent = message;
         }
@@ -444,8 +446,6 @@
             setLoginMessage("You have been logged out.", false);
             showLogin();
         });
-
-        let lastOperation = null;
 
         clearButton.addEventListener("click", clearAll);
         operationButtons.forEach(function(button) {

@@ -18,8 +18,9 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import Users from './components/Users.vue'
 import Products from './components/Products.vue'
+import { API_BASE } from './config.js'
 
-const BASE = 'http://localhost:8080/api'
+const BASE = API_BASE
 
 const currentView = ref('users')
 const isLoggedIn = ref(!!localStorage.getItem('session_token'))
