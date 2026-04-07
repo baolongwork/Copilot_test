@@ -19,8 +19,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Check Network
-        run: curl -I https://google.com
+      - name: Checkout Firewall
+        run: |
+          echo "--- NPM ---"
+          curl -I -s --connect-timeout 5 https://registry.npmjs.org | grep "HTTP/"
+          
+          echo "--- Nodejs ---"
+          curl -I -s --connect-timeout 5 https://nodejs.org | grep "HTTP/"
+          
+          echo "--- IFCONFIG"
+          curl -s --connect-timeout 5 https://ifconfig.me
 
       - name: Install Nodejs
         uses: actions/setup-node@v4
