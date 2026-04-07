@@ -18,3 +18,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Install Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Package install
+        run: npm install
