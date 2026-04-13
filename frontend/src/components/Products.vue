@@ -1,17 +1,17 @@
 <template>
   <div>
     <h2>Products</h2>
-    <form @submit.prevent="submitForm" style="margin-bottom:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
-      <input v-model="form.name" placeholder="Name" required style="padding:0.4rem;" />
-      <input v-model="form.description" placeholder="Description" style="padding:0.4rem;" />
-      <input v-model.number="form.price" placeholder="Price" type="number" step="0.01" required style="padding:0.4rem;" />
-      <button type="submit" style="padding:0.4rem 1rem;background:#27ae60;color:white;border:none;border-radius:4px;cursor:pointer;">
+    <form @submit.prevent="submitForm" class="product-form">
+      <input v-model="form.name" placeholder="Name" required class="form-input" />
+      <input v-model="form.description" placeholder="Description" class="form-input" />
+      <input v-model.number="form.price" placeholder="Price" type="number" step="0.01" required class="form-input" />
+      <button type="submit" class="btn btn-create">
         {{ editingId ? 'Update' : 'Create' }}
       </button>
-      <button v-if="editingId" type="button" @click="cancelEdit" style="padding:0.4rem 1rem;background:#95a5a6;color:white;border:none;border-radius:4px;cursor:pointer;">Cancel</button>
+      <button v-if="editingId" type="button" @click="cancelEdit" class="btn btn-cancel">Cancel</button>
     </form>
-    <table border="1" cellpadding="6" style="border-collapse:collapse;width:100%;">
-      <thead style="background:#ecf0f1;">
+    <table class="data-table">
+      <thead>
         <tr><th>ID</th><th>Name</th><th>Description</th><th>Price</th><th>Created At</th><th>Actions</th></tr>
       </thead>
       <tbody>
@@ -22,13 +22,13 @@
           <td>${{ (product.price ?? 0).toFixed(2) }}</td>
           <td>{{ new Date(product.created_at).toLocaleString() }}</td>
           <td>
-            <button @click="startEdit(product)" style="margin-right:0.5rem;padding:0.3rem 0.7rem;background:#3498db;color:white;border:none;border-radius:4px;cursor:pointer;">Edit</button>
-            <button @click="deleteProduct(product.id)" style="padding:0.3rem 0.7rem;background:#e74c3c;color:white;border:none;border-radius:4px;cursor:pointer;">Delete</button>
+            <button @click="startEdit(product)" class="btn btn-edit">Edit</button>
+            <button @click="deleteProduct(product.id)" class="btn btn-delete">Delete</button>
           </td>
         </tr>
       </tbody>
     </table>
-    <p v-if="error" style="color:red;">{{ error }}</p>
+    <p v-if="error" class="error-text">{{ error }}</p>
   </div>
 </template>
 
@@ -86,3 +86,63 @@ async function deleteProduct(id) {
 
 onMounted(fetchProducts)
 </script>
+
+<style scoped>
+.product-form {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.form-input {
+  padding: 0.4rem;
+}
+
+.data-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.data-table th,
+.data-table td {
+  border: 1px solid #ccc;
+  padding: 6px;
+}
+
+.data-table thead {
+  background: #ecf0f1;
+}
+
+.btn {
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: white;
+}
+
+.btn-create {
+  padding: 0.4rem 1rem;
+  background: #27ae60;
+}
+
+.btn-cancel {
+  padding: 0.4rem 1rem;
+  background: #95a5a6;
+}
+
+.btn-edit {
+  margin-right: 0.5rem;
+  padding: 0.3rem 0.7rem;
+  background: #3498db;
+}
+
+.btn-delete {
+  padding: 0.3rem 0.7rem;
+  background: #e74c3c;
+}
+
+.error-text {
+  color: red;
+}
+</style>

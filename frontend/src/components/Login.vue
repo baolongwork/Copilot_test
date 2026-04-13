@@ -1,43 +1,35 @@
 <template>
-  <div style="display:flex;justify-content:center;align-items:center;min-height:80vh;">
-    <div style="background:#fff;padding:2rem;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);width:320px;">
-      <h2 style="margin-top:0;margin-bottom:1.5rem;text-align:center;color:#2c3e50;">Login</h2>
+  <div class="login-wrapper">
+    <div class="login-card">
+      <h2 class="login-title">Login</h2>
       <form @submit.prevent="submit">
-        <div style="margin-bottom:1rem;">
-          <label style="display:block;margin-bottom:0.3rem;font-size:0.9rem;color:#555;">Email</label>
+        <div class="form-group">
+          <label class="form-label">Email</label>
           <input
             v-model="form.email"
             type="email"
             placeholder="you@example.com"
             required
-            style="width:100%;padding:0.5rem;box-sizing:border-box;border:1px solid #ccc;border-radius:4px;"
+            class="form-input"
           />
         </div>
-        <div style="margin-bottom:1.5rem;">
-          <label style="display:block;margin-bottom:0.3rem;font-size:0.9rem;color:#555;">Password</label>
+        <div class="form-group form-group--last">
+          <label class="form-label">Password</label>
           <input
             v-model="form.password"
             type="password"
             placeholder="Password"
             required
-            style="width:100%;padding:0.5rem;box-sizing:border-box;border:1px solid #ccc;border-radius:4px;"
+            class="form-input"
           />
         </div>
-        <button
-          type="submit"
-          :disabled="loading"
-          style="width:100%;padding:0.6rem;background:#3498db;color:white;border:none;border-radius:4px;cursor:pointer;font-size:1rem;"
-        >
+        <button type="submit" :disabled="loading" class="btn-submit">
           {{ loading ? 'Signing in…' : 'Sign In' }}
         </button>
       </form>
-      <p v-if="error" style="color:red;margin-top:1rem;text-align:center;font-size:0.9rem;">{{ error }}</p>
-      <div style="margin-top:1rem;text-align:center;">
-        <a
-          href="#"
-          @click.prevent="emit('forgot-password')"
-          style="color:#3498db;font-size:0.9rem;text-decoration:none;"
-        >
+      <p v-if="error" class="error-text">{{ error }}</p>
+      <div class="forgot-link-wrapper">
+        <a href="#" @click.prevent="emit('forgot-password')" class="forgot-link">
           Forgot your password?
         </a>
       </div>
@@ -70,3 +62,84 @@ async function submit() {
   }
 }
 </script>
+
+<style scoped>
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.login-card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  width: 320px;
+}
+
+.login-title {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #2c3e50;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group--last {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.5rem;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 0.6rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.btn-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.error-text {
+  color: red;
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.forgot-link-wrapper {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.forgot-link {
+  color: #3498db;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+</style>
